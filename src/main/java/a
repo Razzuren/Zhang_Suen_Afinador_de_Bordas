@@ -1,0 +1,10 @@
+  && matrix[x][y-1].equals(wh)
+                                && matrix[x+1][y].equals(wh)
+                                && matrix[x-1][y].equals(wh)
+                                && matrix[x-1][y].equals(wh)
+
+
+                                 && matrix[x][y-1].equals(wh)
+                                                                && matrix[x+1][y].equals(wh)
+                                                                && matrix[x][y+1].equals(wh)
+                                                                && matrix[x-1][y].equals(wh)
