@@ -1,9 +1,13 @@
+import com.formdev.flatlaf.FlatDarculaLaf;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +19,9 @@ public class Program  implements Runnable{
     public OptionsFrame optionsFrame = new OptionsFrame();
     public ManipulatedImage original;
     public ManipulatedImage edited;
-    public BufferedImage preview, miniature;
-    public JPanel canvas = optionsFrame.panel;
+    public ManipulatedImage miniature;
+    public BufferedImage preview;
+    public JPanel canvas = optionsFrame.panel, miniaturePanel=optionsFrame.bwPanel;
     public Boolean hasImage = false;
 
     /*Abre uma imagem a partir de um arquivo png ou jpg*/
@@ -47,14 +52,13 @@ public class Program  implements Runnable{
         hasFile = fc.showOpenDialog(optionsFrame);
 
 
-        if (hasFile == fc.APPROVE_OPTION) {
+        if (hasFile == JFileChooser.APPROVE_OPTION) {
             File fl = new File(fc.getSelectedFile().getPath());
             original = new ManipulatedImage(fl);
             resetImage();
             hasImage = true;
             blockInputs(optionsFrame.saveFileButton,hasImage);
             blockInputs(optionsFrame.resetFileButton,hasImage);
-            render();
         } else {
             err.print("Open command cancelled by user.");
         }
@@ -67,7 +71,7 @@ public class Program  implements Runnable{
         fc.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
-                final String[] imagesExtentions = new String[] {"jpg", "png"};
+                final String[] imagesExtentions = new String[] {"png"};
                 {
                     for (String extension : imagesExtentions)
                     {
@@ -82,7 +86,7 @@ public class Program  implements Runnable{
 
             @Override
             public String getDescription() {
-                return "Imagens PNG ou JPEG";
+                return "Imagens PNG";
             }
         });
 
@@ -93,17 +97,20 @@ public class Program  implements Runnable{
             return;
         }
         File choosed = fc.getSelectedFile();
-        ImageIO.write(edited.image, "png", choosed);
+        ImageIO.write(edited.image, "png", new File((choosed + ".png")));
 
     }
     
     /*Atualiza a Imagem na Janela de Visualização*/
     public void render() {
-        Graphics2D g2d = (Graphics2D) canvas.getGraphics();
-        g2d.setBackground(new Color(0x00FFFFFF, true));
-        g2d.setColor(new Color(0x00FFFFFF, true));
-        g2d.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
-        g2d.drawImage(edited.image, 25, 20, null);
+        try {
+                Graphics2D g2d = (Graphics2D) canvas.getGraphics();
+                g2d.setBackground(new Color(0x00FFFFFF, true));
+                g2d.setColor(new Color(0x00FFFFFF, true));
+                g2d.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                if (hasImage)
+                    g2d.drawImage(preview, (canvas.getWidth() / 2) - (preview.getWidth() / 2), 10, null);
+        }catch (Exception ignored){}
     }
 
     /*Adiciona os Listeners aos botões e Slider */
@@ -112,7 +119,7 @@ public class Program  implements Runnable{
             @Override
             public void componentResized(ComponentEvent e) {
                 if (hasImage)
-                    updatePreview();
+                    updatePreview(true);
             }
 
             @Override
@@ -153,21 +160,48 @@ public class Program  implements Runnable{
         optionsFrame.makeBWButton.addActionListener(e ->{
             edited.makeBlackAndWhite(optionsFrame.threshSlider.getValue());
             blockInputs(optionsFrame.applyRefinementButton,edited.isBW);
-            updatePreview();
+            updatePreview(false);
         });
 
         optionsFrame.applyRefinementButton.addActionListener(e ->{
             edited.zhangSuen();
-            updatePreview();
+            updatePreview(false);
         });
 
         optionsFrame.invertColorButton.addActionListener(e ->{
             edited.makeNegative();
-            updatePreview();
+            updatePreview(false);
         });
 
-        optionsFrame.resetFileButton.addActionListener(e -> {
-            resetImage();
+        optionsFrame.resetFileButton.addActionListener(e -> resetImage());
+
+        optionsFrame.threshSlider.addChangeListener(e -> updateMiniature(optionsFrame.threshSlider.getValue()));
+
+        optionsFrame.threshSlider.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                showMiniature(true);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                showMiniature(false);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
         });
 
     }
@@ -176,28 +210,63 @@ public class Program  implements Runnable{
     private void resetImage(){
         try {
         edited = new ManipulatedImage(new File(original.path));
-        updatePreview();
+        blockInputs(optionsFrame.applyRefinementButton,edited.isBW);
+        updatePreview(true);
     } catch (IOException ioException) {
         ioException.printStackTrace();
          }
     }
 
-    public void updatePreview(){
-        int ratio;
-        if((edited.image.getHeight() > canvas.getHeight()) || (edited.image.getWidth() > canvas.getWidth())) {
-            if (edited.image.getHeight() > edited.image.getWidth()) {
-                ratio = (edited.image.getHeight()) / canvas.getHeight();
-            } else {
-                ratio = (edited.image.getWidth()) / canvas.getWidth();
+    /*Cria uma nova imagem prévia*/
+    public void updatePreview(boolean sizeHasChange){
+        try {
+            if (sizeHasChange) {
+                if ((edited.image.getHeight() > canvas.getHeight()) || (edited.image.getWidth() > canvas.getWidth())) {
+
+                    float ratio, ratioX, ratioY;
+                    ratioX = ((float) edited.image.getHeight() / (float) canvas.getHeight());
+                    ratioY = ((float) edited.image.getWidth() / (float) canvas.getWidth());
+
+                    ratio = Math.max(ratioY, ratioX);
+
+                    System.err.println(ratio);
+                    int newHeight = (int) (edited.image.getHeight() / ratio);
+                    int newWidth = (int)  (edited.image.getWidth() / ratio);
+
+                    Image temp = edited.image.getScaledInstance(newWidth,newHeight, Image.SCALE_FAST);
+
+                    preview = new BufferedImage(temp.getWidth(null), temp.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+                    preview.getGraphics().drawImage(temp, 0, 0, null);
+
+                }
+            }else {
+                Image temp = edited.image.getScaledInstance(preview.getWidth(),
+                        preview.getHeight(), Image.SCALE_FAST);
+
+                preview = new BufferedImage(temp.getWidth(null), temp.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+                preview.getGraphics().drawImage(temp, 0, 0, null);
             }
+            optionsFrame.repaint();
+        }catch (Exception ignored){}
+    }
 
-            Image temp = edited.image.getScaledInstance(edited.image.getWidth()/ratio,
-                                                edited.image.getHeight()/ratio, Image.SCALE_FAST);
+    /*Atualiza a imagem da miniatura*/
+    public void updateMiniature(int v){
+        Image temp = preview.getScaledInstance(100,100, Image.SCALE_FAST);
+        BufferedImage tempBuffered = new BufferedImage(temp.getWidth(null),
+                        temp.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 
-            preview = new BufferedImage(temp.getWidth(null), temp.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-            preview.getGraphics().drawImage(temp, 0, 0, null);
-        }
-        render();
+        tempBuffered.getGraphics().drawImage(temp, 0, 0, null);
+
+        miniature = new ManipulatedImage(tempBuffered);
+        miniature.makeBlackAndWhite(v);
+        miniaturePanel.getGraphics().drawImage(miniature.image,0,0,null);
+
+    }
+
+    /*Mostra a imagem da miniatura*/
+    public void showMiniature(boolean show){
+        miniaturePanel.setVisible(show);
     }
 
     /*Monta as Janelas*/
@@ -208,7 +277,7 @@ public class Program  implements Runnable{
         addListeners();
     }
     
-    /*Bloqueia ou libera o Acesso aos Botões de Modificação*/
+    /*Bloqueia ou libera o Acesso aos Botões e Componentes da Interface Gráfica*/
     public void blockInputs (JComponent component, boolean b){
         component.setEnabled(b);
     }
@@ -216,10 +285,11 @@ public class Program  implements Runnable{
     /*Método Principal*/
     public static void main(String[] args) {
         try {
-            UIManager.setLookAndFeel(
-                    UIManager.getSystemLookAndFeelClassName());
+            FlatDarculaLaf.setup();
+            UIManager.put( "Button.arc", 999 );
+            UIManager.put( "Component.arc", 999 );
         } catch (Exception e) {
-            System.err.printf(String.valueOf(e));
+            System.err.print(String.valueOf(e));
         }
 
         Program p = new Program();

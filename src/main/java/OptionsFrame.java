@@ -32,12 +32,14 @@ public class OptionsFrame extends javax.swing.JFrame {
         jSeparator2 = new javax.swing.JToolBar.Separator();
         makeBWButton = new javax.swing.JButton();
         panel = new javax.swing.JPanel();
+        bwPanel = new javax.swing.JPanel();
         FileToolBar = new javax.swing.JToolBar();
         openFileButton = new javax.swing.JButton();
         jSeparator4 = new javax.swing.JToolBar.Separator();
         saveFileButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         resetFileButton = new javax.swing.JButton();
+        jSeparator5 = new javax.swing.JToolBar.Separator();
         invertColorButton = new javax.swing.JButton();
         applyRefinementButton = new javax.swing.JButton();
 
@@ -49,7 +51,7 @@ public class OptionsFrame extends javax.swing.JFrame {
 
         threshSlider.setMaximum(255);
         threshSlider.setToolTipText("Limiar");
-        threshSlider.setValue(0);
+        threshSlider.setValue(125);
         threshSlider.setBorder(javax.swing.BorderFactory.createTitledBorder("Limiar do preto-e-branco"));
         threshSlider.setEnabled(false);
         imageToolBar.add(threshSlider);
@@ -65,18 +67,36 @@ public class OptionsFrame extends javax.swing.JFrame {
         makeBWButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         imageToolBar.add(makeBWButton);
 
-        panel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Visualizar", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        panel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Vizualizador", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
         panel.setAutoscrolls(true);
+
+        bwPanel.setInheritsPopupMenu(true);
+        bwPanel.setMaximumSize(new java.awt.Dimension(100, 100));
+
+        javax.swing.GroupLayout bwPanelLayout = new javax.swing.GroupLayout(bwPanel);
+        bwPanel.setLayout(bwPanelLayout);
+        bwPanelLayout.setHorizontalGroup(
+                bwPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 100, Short.MAX_VALUE)
+        );
+        bwPanelLayout.setVerticalGroup(
+                bwPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 100, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout panelLayout = new javax.swing.GroupLayout(panel);
         panel.setLayout(panelLayout);
         panelLayout.setHorizontalGroup(
                 panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGap(0, 513, Short.MAX_VALUE)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(bwPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         panelLayout.setVerticalGroup(
                 panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGap(0, 216, Short.MAX_VALUE)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLayout.createSequentialGroup()
+                                .addGap(0, 116, Short.MAX_VALUE)
+                                .addComponent(bwPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         FileToolBar.setFloatable(false);
@@ -106,12 +126,12 @@ public class OptionsFrame extends javax.swing.JFrame {
         resetFileButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         resetFileButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         FileToolBar.add(resetFileButton);
+        FileToolBar.add(jSeparator5);
 
         invertColorButton.setText("Inverter Cores");
         invertColorButton.setFocusable(false);
         invertColorButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         invertColorButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        invertColorButton.setEnabled(false);
         FileToolBar.add(invertColorButton);
 
         applyRefinementButton.setText("Aplicar Afinamento de Zhang-Suen");
@@ -125,7 +145,7 @@ public class OptionsFrame extends javax.swing.JFrame {
                         .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(FileToolBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(FileToolBar, javax.swing.GroupLayout.DEFAULT_SIZE, 523, Short.MAX_VALUE)
                                         .addComponent(panel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(applyRefinementButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(imageToolBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -155,48 +175,18 @@ public class OptionsFrame extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(OptionsFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(OptionsFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(OptionsFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(OptionsFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new OptionsFrame().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify
     public javax.swing.JToolBar FileToolBar;
     public javax.swing.JButton applyRefinementButton;
+    public javax.swing.JPanel bwPanel;
     public javax.swing.JToolBar imageToolBar;
     public javax.swing.JButton invertColorButton;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar.Separator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
+    private javax.swing.JToolBar.Separator jSeparator5;
     public javax.swing.JButton makeBWButton;
     public javax.swing.JButton openFileButton;
     public javax.swing.JPanel panel;

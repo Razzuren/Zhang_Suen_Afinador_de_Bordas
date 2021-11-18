@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ManipulatedImage  {
@@ -17,6 +16,14 @@ public class ManipulatedImage  {
     public ManipulatedImage (File f) throws IOException {
         image = ImageIO.read(f);
         path = f.getPath();
+        createMatrixByImage();
+        isBW = false;
+    }
+
+    //Contrutor, recebe uma Buffered image
+    public ManipulatedImage (BufferedImage image) {
+        this.image =image;
+        path = System.getProperty("user.home") + "/Desktop";
         createMatrixByImage();
         isBW = false;
     }
@@ -62,7 +69,6 @@ public class ManipulatedImage  {
         isBW = true;
     }
 
-
     //aplica o afinamento de zhangSuen
     public void zhangSuen(){
         int connected, neighbor;
@@ -77,6 +83,7 @@ public class ManipulatedImage  {
 
             hasChange = false;
 
+            //Primeira Iteração
             for (int x = 0; x  < matrix.length; x++) {
                 for (int y = 0; y < matrix[x].length; y++) {
 
@@ -100,15 +107,16 @@ public class ManipulatedImage  {
                             pointsToChange.add(new Point(x, y));
                             hasChange = true;
                         }
-                    }catch (Exception e){
-                    }
+                    }catch (Exception ignored){}
                 }
             }
+
             for (Point point : pointsToChange)
                 matrix[point.x][point.y] = wh;
 
             pointsToChange.clear();
 
+            //Segunda Iteração
             for (int x = 0; x  < matrix.length; x++) {
                 for (int y = 0; y  < matrix[x].length; y++) {
 
@@ -132,7 +140,7 @@ public class ManipulatedImage  {
                             pointsToChange.add(new Point(x, y));
                             hasChange = true;
                         }
-                    }catch (Exception e){}
+                    }catch (Exception ignored){}
                 }
             }
             for (Point point : pointsToChange)
@@ -154,53 +162,54 @@ public class ManipulatedImage  {
         Color bk = new Color(0,0,0);
         Color wh = new Color(255,255,255);
 
-        //p2 p3
-        if ( matrix[x][y-1].equals(wh) && matrix[x+1][y-1].equals(bk))
-             count++;
+            //p2 p3
+            if ( matrix[x][y-1].equals(wh) && matrix[x+1][y-1].equals(bk))
+                 count++;
 
-        //p3 p4
-        if ( matrix[x+1][y-1].equals(wh) && matrix[x+1][y].equals(bk))
-            count++;
+            //p3 p4
+            if ( matrix[x+1][y-1].equals(wh) && matrix[x+1][y].equals(bk))
+                count++;
 
-        //p4 p5
-        if ( matrix[x+1][y].equals(wh) && matrix[x+1][y+1].equals(bk) )
-            count++;
+            //p4 p5
+            if ( matrix[x+1][y].equals(wh) && matrix[x+1][y+1].equals(bk) )
+                count++;
 
-        //p5 p6
-        if ( matrix[x+1][y+1].equals(wh) && matrix[x][y+1].equals(bk))
-            count++;
+            //p5 p6
+            if ( matrix[x+1][y+1].equals(wh) && matrix[x][y+1].equals(bk))
+                count++;
 
-        //p6 p7
-        if (matrix[x][y+1].equals(wh) && matrix[x-1][y+1].equals(bk))
-            count++;
+            //p6 p7
+            if (matrix[x][y+1].equals(wh) && matrix[x-1][y+1].equals(bk))
+                count++;
 
-        //p7 p8
-        if ( matrix[x-1][y+1].equals(wh) && matrix[x-1][y].equals(bk))
-            count++;
+            //p7 p8
+            if ( matrix[x-1][y+1].equals(wh) && matrix[x-1][y].equals(bk))
+                count++;
 
-        //p8 p9
-        if (matrix[x-1][y].equals(wh) && matrix[x-1][y-1].equals(bk))
-            count++;
+            //p8 p9
+            if (matrix[x-1][y].equals(wh) && matrix[x-1][y-1].equals(bk))
+                count++;
 
-        //p9 p2
-        if (matrix[x-1][y-1].equals(wh) && matrix[x][y-1].equals(bk))
-            count++;
+            //p9 p2
+            if (matrix[x-1][y-1].equals(wh) && matrix[x][y-1].equals(bk))
+                count++;
 
         return count;
     }
 
+    //testa se as condições dos tres pixels vizinhos são verdadeiras
     private boolean condition(boolean c1, boolean c2, boolean c3){
         int a,b,c;
 
-        a = (c1 == true) ?  0 : 1;
-        b = (c2 == true) ?  0 : 1;
-        c = (c3 == true) ?  0 : 1;
+        a = (c1) ?  0 : 1;
+        b = (c2) ?  0 : 1;
+        c = (c3) ?  0 : 1;
 
         return (a*b*c) == 0;
 
     }
 
-    //descobre os pixels vizinhos pretos de um pixel
+    //descobre os pixels pretos vizinhos de um pixel
     private int blackNeighborns(int x, int y) {
         return (255-matrix[x][y-1].getBlue()
                 + 255-matrix[x+1][y-1].getBlue()
